@@ -6,7 +6,11 @@ dependencies:
  - pytest-cov
  - sphinx_rtd_theme
  - ipython
+ - pyyaml
+ - cryptography
+
  - pip:
    - hypothesis
    - pytest-sugar
    - pytest-xdist
+   - bumpversion
