@@ -1,0 +1,12 @@
+name: homog
+dependencies:
+ - python
+ - numpy
+ - pytest
+ - pytest-cov
+ - sphinx_rtd_theme
+ - ipython
+ - pip:
+   - hypothesis
+   - pytest-sugar
+   - pytest-xdist
