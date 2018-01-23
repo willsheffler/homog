@@ -8,7 +8,6 @@ dependencies:
  - ipython
  - pyyaml
  - cryptography
-
  - pip:
    - hypothesis
    - pytest-sugar
