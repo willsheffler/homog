@@ -13,3 +13,4 @@ dependencies:
    - pytest-sugar
    - pytest-xdist
    - bumpversion
+   - tox
