@@ -8,3 +8,4 @@ __version__ = '0.1.4'
 
 
 from .homog import *
+from . import sym

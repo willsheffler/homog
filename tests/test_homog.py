@@ -4,6 +4,18 @@ from numpy.testing import assert_allclose
 import pytest
 
 
+def test_sym():
+    assert sym.tetrahedral_frames.shape == (12, 4, 4)
+    assert sym.octahedral_frames.shape == (24, 4, 4)
+    assert sym.icosahedral_frames.shape == (60, 4, 4)
+    x = np.concatenate([sym.tetrahedral_frames,
+                        sym.octahedral_frames,
+                        sym.icosahedral_frames])
+    assert np.all(x[..., 3, 3] == 1)
+    assert np.all(x[..., 3, :3] == 0)
+    assert np.all(x[..., :3, 3] == 0)
+
+
 def test_homo_rotation_single():
     axis0 = hnormalized(np.random.randn(3))
     ang0 = np.pi / 4.0
