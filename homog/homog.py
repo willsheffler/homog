@@ -402,3 +402,36 @@ def align_vectors(a1, a2, b1, b2):
     # xa = Xform().from_two_vecs(a2,a1)
     # xb = Xform().from_two_vecs(b2,b1)
     # return xb/xa
+
+
+def invert_xform(xf):
+    """Invert a homogenous transform.
+
+    Note:
+        Inverting a homogenous transform is different than merely invering the
+        supplied matrix. The inverse takes the following form:
+        _         _      _                      _
+        | R_3   p |      | R_3^-1   -R_3^-1 * p |
+        | 0     1 |   -> | 0         1          |
+        -         -      -                      -
+
+    Args:
+        xf (np.array): A homogenous transform. Shape must be (4, 4)
+
+    Returns:
+        np.array: The inverted homogenous transform. Multiplying this by xf
+            is I_4
+    """
+    # TODO: is there a fast, smart way to ensure the input is a homogenous
+    # transform?
+    assert(xf.shape == (4, 4))
+    inv = np.empty_like(xf)
+    # invert the coordinate frame
+    inv[:3, :3] = np.linalg.inv(xf[:3, :3])
+    # set the last row to be [0 0 0 1]
+    inv[3, :] = xf[3, :]
+    # calculate the translation
+    inv[:3, 3] = np.dot(-inv[:3, :3], xf[:3, 3])
+    # ensure that inv * xf = I_4
+    assert(np.allclose(np.dot(inv, xf), np.identity(4)))
+    return inv
