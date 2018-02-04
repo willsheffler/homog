@@ -3,7 +3,7 @@ bumpversion
 wheel
 watchdog
 flake8
-tox
+tox==2.9.1
 coverage
 Sphinx
 cryptography
@@ -11,4 +11,4 @@ PyYAML
 pytest
 pytest-runner
 numpy
-tox
+tox==2.9.1
