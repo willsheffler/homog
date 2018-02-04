@@ -1,6 +1,6 @@
 pip
 bumpversion
-wheel
+wheel==0.30.0
 watchdog
 flake8
 tox
