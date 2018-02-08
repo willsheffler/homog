@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.linalg
 
 
 def guess_is_degrees(angle):
