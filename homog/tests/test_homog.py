@@ -255,37 +255,42 @@ def test_intersect_planes_rand():
     assert np.all(ray_in_plane(plane2, isect))
 
 
-@pytest.mark.xfail
-def test_axis_ang_cen_of_case1():
-    x = np.array(
-        [[-4.98183553296844550129e-01, 7.04469414791054737712e-01,
-          - 5.05505603998624652995e-01, -1.81514329108557745940e+01],
-         [-7.20356134635111944320e-01, -1.17810790725664249479e-02,
-          6.93504092978299069294e-01, -6.19665276784234198004e+00],
-         [4.82597155338028827032e-01, 7.09636632244134868408e-01,
-            5.13337986047928240829e-01, 3.12011201022210382661e+00],
-         [0.00000000000000000000e+00, 0.00000000000000000000e+00,
-            0.00000000000000000000e+00, 1.00000000000000000000e+00]])
-    axis, ang, cen = axis_ang_cen_of(x, debug=1)
-    print(cen)
-    print(x @ cen)
-    assert np.allclose(x @ cen, cen)
-    assert 0
-
-
 def test_axis_ang_cen_of_rand():
     shape = (5, 6, 7, 8, 9)
     axis0 = hnormalized(np.random.randn(*shape, 3))
-    ang0 = np.random.random(shape) * np.pi
+    ang0 = np.random.random(shape) * (np.pi - 0.1) + 0.1
     cen0 = np.random.randn(*shape, 3) * 100.0
 
+    helical_trans = np.random.randn(*shape)[..., None] * axis0
     rot = hrot(axis0, ang0, cen0, dtype='f8')
+    rot[..., :, 3] += helical_trans
     axis, ang, cen = axis_ang_cen_of(rot)
 
     assert_allclose(axis0, axis, rtol=1e-5)
     assert_allclose(ang0, ang, rtol=1e-5)
     #  check rotation doesn't move cen
     cenhat = (rot @ cen[..., None]).squeeze()
+    assert_allclose(cen + helical_trans, cenhat, rtol=1e-5, atol=1e-5)
+
+
+def test_axis_ang_cen_of_rand_eig():
+    shape = (5, 6, 7, 8, 9)
+    axis0 = hnormalized(np.random.randn(*shape, 3))
+    ang0 = np.random.random(shape)
+    cen0 = np.random.randn(*shape, 3) * 100.0
+
+    rot = hrot(axis0, ang0, cen0, dtype='f8')
+    axis, ang, cen = axis_ang_cen_of_eig(rot)
+    print(ang0)
+    print(axis0)
+    print(axis)
+    print(np.linalg.norm(cen))
+
+    assert np.linalg.norm(cen)
+    assert_allclose(axis0, axis, rtol=1e-5)
+    assert_allclose(ang0, ang, rtol=1e-5)
+    #  check rotation doesn't move cen
+    cenhat = (rot @ cen[..., None]).squeeze(axis=-1)
     assert_allclose(cen, cenhat, rtol=1e-5, atol=1e-5)
 
 

@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.linalg
 
 
 def guess_is_degrees(angle):
@@ -293,24 +294,32 @@ def intersect_planes(plane1, plane2):
     return isect, status
 
 
-def axis_ang_cen_of(xforms, debug=0):
+def axis_ang_cen_of_eig(xforms, debug=False):
     axis, angle = axis_angle_of(xforms)
-
     # # seems to numerically unstable
-    # ev, cen = np.linalg.eig(xforms)
-    # cen = np.real(cen[..., 3])
-    # cen /= cen[..., 3][..., None]
+    ev, cen = np.linalg.eig(xforms)
+    # print(axis)
+    # print(cen[..., 0])
+    # print(cen[..., 1])
+    # print(cen[..., 2])
+    # axis = np.real(cen[..., 2])
+    cen = np.real(cen[..., 3])
+    cen /= cen[..., 3][..., None]
     # # todo: this is unstable.... fix?
-    # # cen = proj_perp(axis, cen)  # move to reasonable position
-    # return axis, angle, cen
+    # cen = proj_perp(axis, cen)  # move to reasonable position
+    return axis, angle, cen
 
+
+def axis_ang_cen_of_planes(xforms, debug=False):
+    axis, angle = axis_angle_of(xforms)
     #  sketchy magic points...
     p1 = (-32.09501046777237, 03.36227004372687, 35.34672781477340, 1)
     p2 = (21.15113978202345, 12.55664537217840, -37.48294301885574, 1)
     # p1 = random_point()
     # p2 = random_point()
-    q1 = xforms @ p1
-    q2 = xforms @ p2
+    tparallel = hdot(axis, xforms[..., :, 3])[..., None] * axis
+    q1 = xforms @ p1 - tparallel
+    q2 = xforms @ p2 - tparallel
     n1 = hnormalized(q1 - p1)
     n2 = hnormalized(q2 - p2)
     c1 = (p1 + q1) / 2.0
@@ -319,6 +328,9 @@ def axis_ang_cen_of(xforms, debug=0):
     plane2 = hray(c2, n2)
     isect, status = intersect_planes(plane1, plane2)
     return axis, angle, isect[..., :, 0]
+
+
+axis_ang_cen_of = axis_ang_cen_of_planes
 
 
 def line_line_distance_pa(pt1, ax1, pt2, ax2):
@@ -402,3 +414,66 @@ def align_vectors(a1, a2, b1, b2):
     # xa = Xform().from_two_vecs(a2,a1)
     # xb = Xform().from_two_vecs(b2,b1)
     # return xb/xa
+
+    # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    # Real
+    # get_stub_transform_data(
+    #     Stub const & stub1,
+    #     Stub const & stub2,
+    #     Vector & center,
+    #     Vector & n,  // a normal vector
+    #     Vector & t,  // parallel to n (or antiparallel)
+    #     Real & theta // in radians, positive
+    # )
+    # {
+    #     check_for_nans_in_stubs( stub1, "get_stub_transform_data: stub1" );
+    #     check_for_nans_in_stubs( stub2, "get_stub_transform_data: stub2" );
+
+    #     // two matrices are related by a rotation about the axis
+    #     // can find the normal using numeric code
+    #     //
+    #     Matrix const R( stub2.M * stub1.M.transposed() );
+    #     Real const R_identity_dev( sqrt(
+    #         R.col_x().distance_squared( Vector(1,0,0) ) +
+    #         R.col_y().distance_squared( Vector(0,1,0) ) +
+    #         R.col_z().distance_squared( Vector(0,0,1) ) ) );
+
+    #     n = my_rotation_axis( R, theta );
+    #     runtime_assert( fabs( n.length()-1 )<1e-3 );
+    #     runtime_assert( theta > -1e-3 ); // theta should be positive
+
+    #     Vector const v1( stub1.v ), v2( stub2.v );
+    #     t = (v2-v1).dot(n) * n;
+    #     Vector const v2p( v2 - t );
+
+    #     // confirm that these guys are now in the same plane
+    #     runtime_assert( is_small( (v1-v2p).dot( n ) ) );
+
+    #     // now try to figure out what the x,y coords of the axis are
+    #     Real y( v1.distance(v2p)/2 ), x;
+    #     if ( theta < numeric::constants::d::pi/2 ) x = y / std::tan( theta/2 );
+    #     else { // no cotangent function
+    #         //x = y * std::cot( theta/2 );
+    #         // sin(theta/2) = 1 / sqrt( u**2 + 1 ) where u = x/y
+    #         // so u**2 = 1 / (sin(theta/2)*sin(theta/2)) - 1
+    #         Real const u_squared( max( 0.0, -1 + 1 / numeric::square( std::sin( theta/2 ) ) ) );
+    #         x = y * sqrt( u_squared );
+    #     }
+
+    #     Vector const midpoint( 0.5 * (v1+v2p) ), ihat( ( v2p - v1 ).normalized() ), khat( n ),
+    #         jhat( khat.cross( ihat ) );
+    #     center = midpoint + x * jhat;
+
+    #     // check
+    #     Real const dev( v2.distance( ( R*( v1-center) + t + center ) ) );
+    #     if ( R_identity_dev > 1e-2 && theta > 1e-2 ) {
+    #         if ( dev>1e-1 ) {
+    #             TR_STUB_TRANSFORM.Trace << "WARNING:: get_stub_transform_data: dev: " << dev <<
+    #                 " R_identity_dev: " << R_identity_dev << ' ' << " theta: " << theta << endl;
+    #         }
+    #     }
+    #     return dev;
+
+    # }
+
+    # #endif
