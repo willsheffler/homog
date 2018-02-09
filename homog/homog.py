@@ -70,18 +70,6 @@ def hinv(xforms):
     return inv
 
 
-def hstub(u, v, w, cen=None):
-    assert u.shape == v.shape == w.shape
-    if not cen: cen = u
-    assert cen.shape == u.shape
-    stubs = np.empty(u.shape[:-1] + (4, 4))
-    stubs[..., :, 0] = hnormalized(u - v)
-    stubs[..., :, 2] = hnormalized(hcross(stubs[..., :, 0], w - v))
-    stubs[..., :, 1] = hcross(stubs[..., :, 2], stubs[..., :, 0])
-    stubs[..., :, 3] = hpoint(cen[..., :])
-    return stubs
-
-
 def axis_angle_of(xforms):
     axis = fast_axis_of(xforms)
     four_sin2 = np.sum(axis**2, axis=-1)
@@ -173,6 +161,20 @@ def hray(origin, direction):
     r[..., 3, 0] = 1
     r[..., :, 1] = direction
     return r
+
+
+def hstub(u, v, w, cen=None):
+    u, v, w = hpoint(u), hpoint(v), hpoint(w)
+    assert u.shape == v.shape == w.shape
+    if not cen: cen = u
+    cen = hpoint(cen)
+    assert cen.shape == u.shape
+    stubs = np.empty(u.shape[:-1] + (4, 4))
+    stubs[..., :, 0] = hnormalized(u - v)
+    stubs[..., :, 2] = hnormalized(hcross(stubs[..., :, 0], w - v))
+    stubs[..., :, 1] = hcross(stubs[..., :, 2], stubs[..., :, 0])
+    stubs[..., :, 3] = hpoint(cen[..., :])
+    return stubs
 
 
 def htrans(trans, dtype='f8'):

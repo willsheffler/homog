@@ -293,6 +293,8 @@ def test_hstub():
     s = hstub(u, v, w)
     assert is_homog_xform(s)
 
+    assert is_homog_xform(hstub([1, 2, 3], [5, 6, 4], [9, 7, 8]))
+
 
 def test_axis_ang_cen_of_rand_eig():
     shape = (5, 6, 7, 8, 9)
