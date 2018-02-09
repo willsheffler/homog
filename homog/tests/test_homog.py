@@ -150,6 +150,7 @@ def test_ray_in_plane():
     assert np.all(ray_in_plane(plane, ray))
 
 
+@pytest.mark.skip
 def test_intersect_planes():
     with pytest.raises(ValueError):
         intersect_planes(
@@ -271,6 +272,26 @@ def test_axis_ang_cen_of_rand():
     #  check rotation doesn't move cen
     cenhat = (rot @ cen[..., None]).squeeze()
     assert_allclose(cen + helical_trans, cenhat, rtol=1e-5, atol=1e-5)
+
+
+def test_hinv_rand():
+    shape = (5, 6, 7, 8, 9,)
+    axis0 = hnormalized(np.random.randn(*shape, 3))
+    ang0 = np.random.random(shape) * (np.pi - 0.1) + 0.1
+    cen0 = np.random.randn(*shape, 3) * 100.0
+    helical_trans = np.random.randn(*shape)[..., None] * axis0
+    rot = hrot(axis0, ang0, cen0, dtype='f8')
+    rot[..., :, 3] += helical_trans
+    assert np.allclose(np.eye(4), hinv(rot) @ rot)
+
+
+def test_hstub():
+    sh = (5, 6, 7, 8, 9)
+    u = h_rand_points(sh)
+    v = h_rand_points(sh)
+    w = h_rand_points(sh)
+    s = hstub(u, v, w)
+    assert is_homog_xform(s)
 
 
 def test_axis_ang_cen_of_rand_eig():

@@ -1,6 +1,14 @@
 import numpy as np
 
 
+def h_rand_points(shape=(1,)):
+    pts = np.ones(shape + (4,))
+    pts[..., 0] = np.random.randn(*shape)
+    pts[..., 1] = np.random.randn(*shape)
+    pts[..., 2] = np.random.randn(*shape)
+    return pts
+
+
 def guess_is_degrees(angle):
     return np.max(np.abs(angle)) > 2 * np.pi
 
@@ -20,6 +28,58 @@ def fast_axis_of(xforms):
         xforms[..., 0, 2] - xforms[..., 2, 0],
         xforms[..., 1, 0] - xforms[..., 0, 1],
         np.zeros(xforms.shape[:-2])), axis=-1)
+
+
+def is_homog_xform(xforms):
+    return ((xforms.shape[-2:] == (4, 4))
+            and (np.allclose(1, np.linalg.det(xforms[..., :3, :3])))
+            and (np.allclose(xforms[..., 3, :], [0, 0, 0, 1])))
+
+
+def hinv(xforms):
+    """Invert a homogenous transform.
+
+    Note:
+        Thank you Brian Weitzner!
+
+        Inverting a homogenous transform is different than merely invering the
+        supplied matrix. The inverse takes the following form:
+        _         _      _                      _
+        | R_3   p |      | R_3^-1   -R_3^-1 * p |
+        | 0     1 |   -> | 0         1          |
+        -         -      -                      -
+
+    Args:
+        xf (np.array): A homogenous transform. Shape must be (4, 4)
+
+    Returns:
+        np.array: The inverted homogenous transform. Multiplying this by xf
+            is I_4
+    """
+    # TODO: is there a fast, smart way to ensure the input is a homogenous
+    # transform?
+    assert is_homog_xform(xforms)
+    inv = np.empty_like(xforms)
+    # invert the coordinate frame
+    inv[..., :3, :3] = xforms[..., :3, :3].swapaxes(-1, -2)
+    # set the last row to be [0 0 0 1]
+    inv[..., 3, :] = xforms[..., 3, :]
+    # calculate the translation
+    newt = -inv[..., :3, :3] @ xforms[..., :3, 3, None]
+    inv[..., :3, 3] = newt.squeeze()
+    return inv
+
+
+def hstub(u, v, w, cen=None):
+    assert u.shape == v.shape == w.shape
+    if not cen: cen = u
+    assert cen.shape == u.shape
+    stubs = np.empty(u.shape[:-1] + (4, 4))
+    stubs[..., :, 0] = hnormalized(u - v)
+    stubs[..., :, 2] = hnormalized(hcross(stubs[..., :, 0], w - v))
+    stubs[..., :, 1] = hcross(stubs[..., :, 2], stubs[..., :, 0])
+    stubs[..., :, 3] = hpoint(cen[..., :])
+    return stubs
 
 
 def axis_angle_of(xforms):
@@ -273,6 +333,7 @@ def intersect_planes(plane1, plane2):
     n1a, n2a, d1a, d2a, ua = (x[sel0] for x in (n1, n2, d1, d2, u))
     n1b, n2b, d1b, d2b, ub = (x[sel1] for x in (n1, n2, d1, d2, u))
     n1c, n2c, d1c, d2c, uc = (x[sel2] for x in (n1, n2, d1, d2, u))
+
     ay = (d2a * n1a[..., 2] - d1a * n2a[..., 2]) / ua[..., 0]
     az = (d1a * n2a[..., 1] - d2a * n1a[..., 1]) / ua[..., 0]
     bz = (d2b * n1b[..., 0] - d1b * n2b[..., 0]) / ub[..., 1]
