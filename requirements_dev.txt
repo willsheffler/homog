@@ -9,6 +9,6 @@ Sphinx
 cryptography
 PyYAML
 pytest
-pytest-runner
+pytest-runner==4.0
 numpy
 tox
