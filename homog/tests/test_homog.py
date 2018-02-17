@@ -26,6 +26,16 @@ def test_homo_rotation_single():
     assert np.all(abs(np.arcsin(n / 2) - ang0) < 0.001)
 
 
+def test_homo_rotation_ein_single():
+    axis0 = hnormalized(np.random.randn(3))
+    ang0 = np.pi / 4.0
+    r = hrot(list(axis0), float(ang0), func='ein')
+    a = fast_axis_of(r)
+    n = hnorm(a)
+    assert np.all(abs(a / n - axis0) < 0.001)
+    assert np.all(abs(np.arcsin(n / 2) - ang0) < 0.001)
+
+
 def test_homo_rotation_center():
     AAC = assert_allclose
     AAC([0, 2, 0, 1], hrot([1, 0, 0], 180, [0, 1, 0]) @ (0, 0, 0, 1), atol=1e-5)
@@ -44,11 +54,31 @@ def test_homo_rotation_array():
     assert np.all(abs(np.arcsin(n[..., 0] / 2) - ang0) < 0.001)
 
 
+def test_homo_rotation_ein_array():
+    shape = (1, 2, 1, 3, 4, 1, 1)
+    axis0 = hnormalized(np.random.randn(*(shape + (3,))))
+    ang0 = np.random.rand(*shape) * (0.99 * np.pi / 2 + 0.005 * np.pi / 2)
+    r = hrot(axis0, ang0, func='ein')
+    a = fast_axis_of(r)
+    n = hnorm(a)[..., np.newaxis]
+    assert np.all(abs(a / n - axis0) < 0.001)
+    assert np.all(abs(np.arcsin(n[..., 0] / 2) - ang0) < 0.001)
+
+
 def test_homo_rotation_angle():
     ang = np.random.rand(1000) * np.pi
     a = random_unit()
     u = proj_perp(a, random_vec())
     x = hrot(a, ang)
+    ang2 = angle(u, x @ u)
+    assert np.allclose(ang, ang2, atol=1e-5)
+
+
+def test_homo_rotation_ein_angle():
+    ang = np.random.rand(1000) * np.pi
+    a = random_unit()
+    u = proj_perp(a, random_vec())
+    x = hrot(a, ang, func='ein')
     ang2 = angle(u, x @ u)
     assert np.allclose(ang, ang2, atol=1e-5)
 
