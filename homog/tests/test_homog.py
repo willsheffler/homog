@@ -296,27 +296,6 @@ def test_hstub():
     assert is_homog_xform(hstub([1, 2, 3], [5, 6, 4], [9, 7, 8]))
 
 
-def test_axis_ang_cen_of_rand_eig():
-    shape = (5, 6, 7, 8, 9)
-    axis0 = hnormalized(np.random.randn(*shape, 3))
-    ang0 = np.random.random(shape)
-    cen0 = np.random.randn(*shape, 3) * 100.0
-
-    rot = hrot(axis0, ang0, cen0, dtype='f8')
-    axis, ang, cen = axis_ang_cen_of_eig(rot)
-    print(ang0)
-    print(axis0)
-    print(axis)
-    print(np.linalg.norm(cen))
-
-    assert np.linalg.norm(cen)
-    assert_allclose(axis0, axis, rtol=1e-5)
-    assert_allclose(ang0, ang, rtol=1e-5)
-    #  check rotation doesn't move cen
-    cenhat = (rot @ cen[..., None]).squeeze(axis=-1)
-    assert_allclose(cen, cenhat, rtol=1e-5, atol=1e-5)
-
-
 def test_line_line_dist():
     lld = line_line_distance
     assert lld(hray([0, 0, 0], [1, 0, 0]), hray([0, 0, 0], [1, 0, 0])) == 0
@@ -355,7 +334,7 @@ def test_line_line_closest_points():
     assert p.shape[:-1] == shape and q.shape[:-1] == shape
     lldist0 = hnorm(p - q)
     lldist1 = lld(r1, r2)
-    assert np.allclose(lldist0, lldist1, atol=1e-4, rtol=1e-4)
+    assert np.allclose(lldist0, lldist1, atol=1e-3, rtol=1e-3)
 
 
 def test_dihedral():

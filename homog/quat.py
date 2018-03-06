@@ -1,9 +1,25 @@
 import numpy as np
 
 
+def quat_to_upper_half(quat):
+    ineg0 = (quat[..., 0] < 0)
+    ineg1 = (quat[..., 0] == 0) * (quat[..., 1] < 0)
+    ineg2 = (quat[..., 0] == 0) * (quat[..., 1] == 0) * (quat[..., 2] < 0)
+    ineg3 = ((quat[..., 0] == 0) * (quat[..., 1] == 0) *
+             (quat[..., 2] == 0) * (quat[..., 3] < 0))
+    print(ineg0.shape)
+    print(ineg1.shape)
+    print(ineg2.shape)
+    print(ineg3.shape)
+    ineg = ineg0 + ineg1 + ineg2 + ineg3
+    quat[ineg] = -quat[ineg]
+    return quat
+
+
 def rand_quat(shape=()):
     q = np.random.randn(*shape, 4)
-    return q / np.linalg.norm(q, axis=-1)[..., np.newaxis]
+    q /= np.linalg.norm(q, axis=-1)[..., np.newaxis]
+    return quat_to_upper_half(q)
 
 
 def rot_to_quat(xform):
@@ -15,7 +31,7 @@ def rot_to_quat(xform):
     quat[..., 1] = (xform[..., 2, 1] - xform[..., 1, 2]) * s
     quat[..., 2] = (xform[..., 0, 2] - xform[..., 2, 0]) * s
     quat[..., 3] = (xform[..., 1, 0] - xform[..., 0, 1]) * s
-    return quat
+    return quat_to_upper_half(quat)
 
 
 def quat_to_rot(quat, dtype='f8', shape=(3, 3)):
