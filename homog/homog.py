@@ -203,12 +203,12 @@ def hcross(a, b):
 
 def hnorm(a):
     a = np.asanyarray(a)
-    return np.sqrt(np.sum(a * a, axis=-1))
+    return np.sqrt(np.sum(a[..., :3] * a[..., :3], axis=-1))
 
 
 def hnorm2(a):
     a = np.asanyarray(a)
-    return np.sum(a * a, axis=-1)
+    return np.sum(a[..., :3] * a[..., :3], axis=-1)
 
 
 def hnormalized(a):
@@ -279,11 +279,14 @@ def random_ray(shape=(), cen=(0, 0, 0), sdev=1):
     return r
 
 
-def random_xform(shape=()):
+def random_xform(shape=(), axis=None, ang=None, cen=None):
     if isinstance(shape, int): shape = (shape,)
-    axis = random_unit(shape)
-    ang = np.random.rand(*shape) * np.pi  # todo: make uniform!
-    cen = random_point(shape)
+    if axis is None:
+        axis = random_unit(shape)
+    if ang is None:
+        ang = np.random.rand(*shape) * np.pi  # todo: make uniform!
+    if cen is None:
+        cen = random_point(shape)
     return hrot(axis, ang, cen)
 
 
