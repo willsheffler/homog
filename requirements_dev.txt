@@ -8,7 +8,7 @@ coverage
 Sphinx
 cryptography
 PyYAML
-pytest
+pytest==3.4.2
 pytest-runner
 numpy
 tox
