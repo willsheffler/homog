@@ -10,4 +10,3 @@ __version__ = '0.1.10'
 from .homog import *
 from . import sym
 from . import quat
-from . import binning
