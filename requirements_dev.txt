@@ -9,7 +9,7 @@ Sphinx
 cryptography
 PyYAML
 pytest
-pytest-runner
+pytest-runner==4.1
 numpy
 traitlets
 tox
