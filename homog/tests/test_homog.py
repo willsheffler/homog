@@ -46,8 +46,8 @@ def test_homo_rotation_array():
 
 def test_homo_rotation_angle():
     ang = np.random.rand(1000) * np.pi
-    a = random_unit()
-    u = proj_perp(a, random_vec())
+    a = rand_unit()
+    u = proj_perp(a, rand_vec())
     x = hrot(a, ang)
     ang2 = angle(u, x @ u)
     assert np.allclose(ang, ang2, atol=1e-5)
@@ -116,13 +116,13 @@ def test_is_valid_rays():
     assert is_valid_rays([[0, 0], [0, 1], [0, 0], [1, 0]])
 
 
-def test_random_ray():
-    r = random_ray()
+def test_rand_ray():
+    r = rand_ray()
     assert np.all(r[..., 3, :] == (1, 0))
     assert r.shape == (4, 2)
     assert_allclose(hnorm(r[..., :3, 1]), 1)
 
-    r = random_ray(shape=(5, 6, 7))
+    r = rand_ray(shape=(5, 6, 7))
     assert np.all(r[..., 3, :] == (1, 0))
     assert r.shape == (5, 6, 7, 4, 2)
     assert_allclose(hnorm(r[..., :3, 1]), 1)
@@ -137,14 +137,14 @@ def test_proj_prep():
 
 
 def test_point_in_plane():
-    plane = random_ray((5, 6, 7))
+    plane = rand_ray((5, 6, 7))
     assert np.all(point_in_plane(plane, plane[..., :3, 0]))
     pt = proj_perp(plane[..., :3, 1], np.random.randn(3))
     assert np.all(point_in_plane(plane, plane[..., :3, 0] + pt))
 
 
 def test_ray_in_plane():
-    plane = random_ray((5, 6, 7))
+    plane = rand_ray((5, 6, 7))
     dirn = proj_perp(plane[..., :3, 1], np.random.randn(5, 6, 7, 3))
     ray = hray(plane[..., :3, 0] + np.cross(plane[..., :3, 1], dirn) * 7, dirn)
     assert np.all(ray_in_plane(plane, ray))
@@ -231,7 +231,7 @@ def test_intersect_planes():
 
 def test_intersect_planes_rand():
     # origin case
-    plane1, plane2 = random_ray(shape=(2, 1))
+    plane1, plane2 = rand_ray(shape=(2, 1))
     plane1[..., :3, 0] = 0
     plane2[..., :3, 0] = 0
     isect, status = intersect_planes(plane1, plane2)
@@ -240,7 +240,7 @@ def test_intersect_planes_rand():
     assert np.all(ray_in_plane(plane2, isect))
 
     # orthogonal case
-    plane1, plane2 = random_ray(shape=(2, 1))
+    plane1, plane2 = rand_ray(shape=(2, 1))
     plane1[..., :, 1] = hnormalized([0, 0, 1])
     plane2[..., :, 1] = hnormalized([0, 1, 0])
     isect, status = intersect_planes(plane1, plane2)
@@ -249,7 +249,7 @@ def test_intersect_planes_rand():
     assert np.all(ray_in_plane(plane2, isect))
 
     # general case
-    plane1, plane2 = random_ray(shape=(2, 5, 6, 7, 8, 9))
+    plane1, plane2 = rand_ray(shape=(2, 5, 6, 7, 8, 9))
     isect, status = intersect_planes(plane1, plane2)
     assert np.all(status == 0)
     assert np.all(ray_in_plane(plane1, isect))
@@ -321,15 +321,15 @@ def test_line_line_closest_points():
     assert np.all(p == [4, 2, 3, 1]) and np.all(q == [4, 2, 6, 1])
 
     r1, r2 = hray([1, 2, 3], [1, 0, 0]), hray([4, 5, 6], [0, 1, 0])
-    x = random_xform((5, 6, 7))
+    x = rand_xform((5, 6, 7))
     xinv = np.linalg.inv(x)
     p, q = llcp(x @ r1, x @ r2)
     assert np.allclose((xinv @ p[..., None]).squeeze(-1), [4, 2, 3, 1])
     assert np.allclose((xinv @ q[..., None]).squeeze(-1), [4, 2, 6, 1])
 
     shape = (5, 6, 7,)
-    r1 = random_ray(cen=np.random.randn(*shape, 3))
-    r2 = random_ray(cen=np.random.randn(*shape, 3))
+    r1 = rand_ray(cen=np.random.randn(*shape, 3))
+    r2 = rand_ray(cen=np.random.randn(*shape, 3))
     p, q = llcp(r1, r2)
     assert p.shape[:-1] == shape and q.shape[:-1] == shape
     lldist0 = hnorm(p - q)
@@ -344,7 +344,7 @@ def test_dihedral():
                                                [0, 1, 0], [0, 0, 1]))
     a, b, c = hpoint([1, 0, 0]), hpoint([0, 1, 0]), hpoint([0, 0, 1]),
     n = hpoint([0, 0, 0])
-    x = random_xform(10)
+    x = rand_xform(10)
     assert np.allclose(dihedral(a, b, c, n), dihedral(x@a, x@b, x@c, x@n))
     for ang in np.arange(-np.pi + 0.001, np.pi, 0.1):
         x = hrot([0, 1, 0], ang)
@@ -358,8 +358,8 @@ def test_angle():
 
 
 def test_align_around_axis():
-    axis = random_unit(1000)
-    u = random_vec()
+    axis = rand_unit(1000)
+    u = rand_vec()
     ang = np.random.rand(1000) * np.pi
     x = hrot(axis, ang)
     v = x @ u

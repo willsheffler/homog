@@ -1,4 +1,5 @@
 import numpy as np
+from . import quat
 
 
 def h_rand_points(shape=(1,)):
@@ -228,17 +229,17 @@ def is_valid_rays(r):
     return True
 
 
-def random_point(shape=()):
+def rand_point(shape=()):
     if isinstance(shape, int): shape = (shape,)
     return hpoint(np.random.randn(*(shape + (3,))))
 
 
-def random_vec(shape=()):
+def rand_vec(shape=()):
     if isinstance(shape, int): shape = (shape,)
     return hvec(np.random.randn(*(shape + (3,))))
 
 
-def random_unit(shape=()):
+def rand_unit(shape=()):
     if isinstance(shape, int): shape = (shape,)
     return hnormalized(np.random.randn(*(shape + (3,))))
 
@@ -264,7 +265,7 @@ def line_angle_degrees(u, v):
     return a * 180 / np.pi
 
 
-def random_ray(shape=(), cen=(0, 0, 0), sdev=1):
+def rand_ray(shape=(), cen=(0, 0, 0), sdev=1):
     cen = np.asanyarray(cen)
     if cen.shape[-1] not in (3, 4):
         raise ValueError('cen must be len 3 or 4')
@@ -279,15 +280,24 @@ def random_ray(shape=(), cen=(0, 0, 0), sdev=1):
     return r
 
 
-def random_xform(shape=(), axis=None, ang=None, cen=None):
+def rand_xform_aac(shape=(), axis=None, ang=None, cen=None):
     if isinstance(shape, int): shape = (shape,)
     if axis is None:
-        axis = random_unit(shape)
+        axis = rand_unit(shape)
     if ang is None:
         ang = np.random.rand(*shape) * np.pi  # todo: make uniform!
     if cen is None:
-        cen = random_point(shape)
+        cen = rand_point(shape)
+    q = quat.rand_quat(shape)
     return hrot(axis, ang, cen)
+
+
+def rand_xform(shape=(), cart_cen=0, cart_sd=1):
+    if isinstance(shape, int): shape = (shape,)
+    q = quat.rand_quat(shape)
+    x = quat.quat_to_xform(q)
+    x[..., :3, 3] = np.random.randn(*shape, 3) * cart_sd + cart_cen
+    return x
 
 
 def proj_perp(u, v):
@@ -381,8 +391,8 @@ def axis_ang_cen_of_planes(xforms, debug=False):
     #  sketchy magic points...
     p1 = (-32.09501046777237, 03.36227004372687, 35.34672781477340, 1)
     p2 = (21.15113978202345, 12.55664537217840, -37.48294301885574, 1)
-    # p1 = random_point()
-    # p2 = random_point()
+    # p1 = rand_point()
+    # p2 = rand_point()
     tparallel = hdot(axis, xforms[..., :, 3])[..., None] * axis
     q1 = xforms @ p1 - tparallel
     q2 = xforms @ p2 - tparallel
