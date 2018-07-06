@@ -59,16 +59,17 @@ def hinv(xforms):
     """
     # TODO: is there a fast, smart way to ensure the input is a homogenous
     # transform?
-    assert is_homog_xform(xforms)
-    inv = np.empty_like(xforms)
-    # invert the coordinate frame
-    inv[..., :3, :3] = xforms[..., :3, :3].swapaxes(-1, -2)
-    # set the last row to be [0 0 0 1]
-    inv[..., 3, :] = xforms[..., 3, :]
-    # calculate the translation
-    newt = -inv[..., :3, :3] @ xforms[..., :3, 3, None]
-    inv[..., :3, 3] = newt.squeeze()
-    return inv
+    return np.linalg.inv(xforms)
+    # assert is_homog_xform(xforms)
+    # inv = np.empty_like(xforms)
+    # # invert the coordinate frame
+    # inv[..., :3, :3] = xforms[..., :3, :3].swapaxes(-1, -2)
+    # # set the last row to be[0 0 0 1]
+    # inv[..., 3, :] = xforms[..., 3, :]
+    # # calculate the translation
+    # newt = -inv[..., :3, :3] @ xforms[..., :3, 3, None]
+    # inv[..., :3, 3] = newt.squeeze()
+    # return inv
 
 
 def axis_angle_of(xforms):
@@ -266,6 +267,7 @@ def line_angle_degrees(u, v):
 
 
 def rand_ray(shape=(), cen=(0, 0, 0), sdev=1):
+    if isinstance(shape, int): shape = (shape,)
     cen = np.asanyarray(cen)
     if cen.shape[-1] not in (3, 4):
         raise ValueError('cen must be len 3 or 4')
