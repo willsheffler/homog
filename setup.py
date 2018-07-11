@@ -28,7 +28,7 @@ test_requirements = [
 
 setup(
     name='homog',
-    version='0.1.12',
+    version='0.1.13',
     description="Utilities for Homogeneous Coordinates with Numpy",
     long_description=readme + '\n\n' + history,
     author="Will Sheffler",
