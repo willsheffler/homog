@@ -2,8 +2,8 @@ import numpy as np
 from . import quat
 
 
-def h_rand_points(shape=(1,)):
-    pts = np.ones(shape + (4,))
+def h_rand_points(shape=(1, )):
+    pts = np.ones(shape + (4, ))
     pts[..., 0] = np.random.randn(*shape)
     pts[..., 1] = np.random.randn(*shape)
     pts[..., 2] = np.random.randn(*shape)
@@ -24,11 +24,11 @@ def is_broadcastable(shp1, shp2):
 
 
 def fast_axis_of(xforms):
-    return np.stack((
-        xforms[..., 2, 1] - xforms[..., 1, 2],
-        xforms[..., 0, 2] - xforms[..., 2, 0],
-        xforms[..., 1, 0] - xforms[..., 0, 1],
-        np.zeros(xforms.shape[:-2])), axis=-1)
+    return np.stack(
+        (xforms[..., 2, 1] - xforms[..., 1, 2],
+         xforms[..., 0, 2] - xforms[..., 2, 0],
+         xforms[..., 1, 0] - xforms[..., 0, 1], np.zeros(xforms.shape[:-2])),
+        axis=-1)
 
 
 def is_homog_xform(xforms):
@@ -98,8 +98,8 @@ def rot(axis, angle, degrees='auto', dtype='f8', shape=(3, 3)):
     angle = angle * np.pi / 180.0 if degrees else angle
     if axis.shape and angle.shape and not is_broadcastable(
             axis.shape[:-1], angle.shape):
-        raise ValueError('axis and angle not compatible: ' +
-                         str(axis.shape) + ' ' + str(angle.shape))
+        raise ValueError('axis and angle not compatible: ' + str(axis.shape) +
+                         ' ' + str(angle.shape))
     axis /= np.linalg.norm(axis, axis=-1)[..., np.newaxis]
     a = np.cos(angle / 2.0)
     tmp = axis * -np.sin(angle / 2)[..., np.newaxis]
@@ -123,8 +123,8 @@ def rot(axis, angle, degrees='auto', dtype='f8', shape=(3, 3)):
 def hrot(axis, angle, center=None, dtype='f8', **args):
     axis = np.array(axis, dtype=dtype)
     angle = np.array(angle, dtype=dtype)
-    center = (np.array([0, 0, 0], dtype=dtype) if center is None
-              else np.array(center, dtype=dtype))
+    center = (np.array([0, 0, 0], dtype=dtype)
+              if center is None else np.array(center, dtype=dtype))
     r = rot(axis, angle, dtype=dtype, shape=(4, 4), **args)
     x, y, z = center[..., 0], center[..., 1], center[..., 2]
     r[..., 0, 3] = x - r[..., 0, 0] * x - r[..., 0, 1] * y - r[..., 0, 2] * z
@@ -138,20 +138,22 @@ def hpoint(point):
     point = np.asanyarray(point)
     if point.shape[-1] == 4: return point
     elif point.shape[-1] == 3:
-        r = np.ones(point.shape[:-1] + (4,))
+        r = np.ones(point.shape[:-1] + (4, ))
         r[..., :3] = point
         return r
-    else: raise ValueError('point must len 3 or 4')
+    else:
+        raise ValueError('point must len 3 or 4')
 
 
 def hvec(vec):
     vec = np.asanyarray(vec)
     if vec.shape[-1] == 4: return vec
     elif vec.shape[-1] == 3:
-        r = np.zeros(vec.shape[:-1] + (4,))
+        r = np.zeros(vec.shape[:-1] + (4, ))
         r[..., :3] = vec
         return r
-    else: raise ValueError('vec must len 3 or 4')
+    else:
+        raise ValueError('vec must len 3 or 4')
 
 
 def hray(origin, direction):
@@ -216,7 +218,7 @@ def hnorm2(a):
 def hnormalized(a):
     a = np.asanyarray(a)
     if (not a.shape and len(a) == 3) or (a.shape and a.shape[-1] == 3):
-        a, tmp = np.zeros(a.shape[:-1] + (4,)), a
+        a, tmp = np.zeros(a.shape[:-1] + (4, )), a
         a[..., :3] = tmp
     return a / hnorm(a)[..., None]
 
@@ -231,18 +233,18 @@ def is_valid_rays(r):
 
 
 def rand_point(shape=()):
-    if isinstance(shape, int): shape = (shape,)
-    return hpoint(np.random.randn(*(shape + (3,))))
+    if isinstance(shape, int): shape = (shape, )
+    return hpoint(np.random.randn(*(shape + (3, ))))
 
 
 def rand_vec(shape=()):
-    if isinstance(shape, int): shape = (shape,)
-    return hvec(np.random.randn(*(shape + (3,))))
+    if isinstance(shape, int): shape = (shape, )
+    return hvec(np.random.randn(*(shape + (3, ))))
 
 
 def rand_unit(shape=()):
-    if isinstance(shape, int): shape = (shape,)
-    return hnormalized(np.random.randn(*(shape + (3,))))
+    if isinstance(shape, int): shape = (shape, )
+    return hnormalized(np.random.randn(*(shape + (3, ))))
 
 
 def angle(u, v):
@@ -267,13 +269,13 @@ def line_angle_degrees(u, v):
 
 
 def rand_ray(shape=(), cen=(0, 0, 0), sdev=1):
-    if isinstance(shape, int): shape = (shape,)
+    if isinstance(shape, int): shape = (shape, )
     cen = np.asanyarray(cen)
     if cen.shape[-1] not in (3, 4):
         raise ValueError('cen must be len 3 or 4')
     shape = shape or cen.shape[:-1]
-    cen = cen + np.random.randn(*(shape + (3,))) * sdev
-    norm = np.random.randn(*(shape + (3,)))
+    cen = cen + np.random.randn(*(shape + (3, ))) * sdev
+    norm = np.random.randn(*(shape + (3, )))
     norm /= np.linalg.norm(norm, axis=-1)[..., np.newaxis]
     r = np.zeros(shape + (4, 2))
     r[..., :3, 0] = cen
@@ -283,7 +285,7 @@ def rand_ray(shape=(), cen=(0, 0, 0), sdev=1):
 
 
 def rand_xform_aac(shape=(), axis=None, ang=None, cen=None):
-    if isinstance(shape, int): shape = (shape,)
+    if isinstance(shape, int): shape = (shape, )
     if axis is None:
         axis = rand_unit(shape)
     if ang is None:
@@ -295,7 +297,7 @@ def rand_xform_aac(shape=(), axis=None, ang=None, cen=None):
 
 
 def rand_xform(shape=(), cart_cen=0, cart_sd=1):
-    if isinstance(shape, int): shape = (shape,)
+    if isinstance(shape, int): shape = (shape, )
     q = quat.rand_quat(shape)
     x = quat.quat_to_xform(q)
     x[..., :3, 3] = np.random.randn(*shape, 3) * cart_sd + cart_cen
@@ -309,14 +311,14 @@ def proj_perp(u, v):
 
 
 def point_in_plane(plane, pt):
-    return np.abs(
-        hdot(plane[..., :3, 1], pt[..., :3] - plane[..., :3, 0])) < 0.000001
+    return np.abs(hdot(plane[..., :3, 1],
+                       pt[..., :3] - plane[..., :3, 0])) < 0.000001
 
 
 def ray_in_plane(plane, ray):
     assert ray.shape[-2:] == (4, 2)
-    return (point_in_plane(plane, ray[..., :3, 0]) *
-            point_in_plane(plane, ray[..., :3, 0] + ray[..., :3, 1]))
+    return (point_in_plane(plane, ray[..., :3, 0]) * point_in_plane(
+        plane, ray[..., :3, 0] + ray[..., :3, 1]))
 
 
 def intersect_planes(plane1, plane2):
@@ -357,7 +359,7 @@ def intersect_planes(plane1, plane2):
     bx = (d1b * n2b[..., 2] - d2b * n1b[..., 2]) / ub[..., 1]
     cx = (d2c * n1c[..., 1] - d1c * n2c[..., 1]) / uc[..., 2]
     cy = (d1c * n2c[..., 0] - d2c * n1c[..., 0]) / uc[..., 2]
-    isect_pt = np.empty(shape[:-2] + (3,), dtype=plane1.dtype)
+    isect_pt = np.empty(shape[:-2] + (3, ), dtype=plane1.dtype)
     isect_pt[sel0, 0] = 0
     isect_pt[sel0, 1] = ay
     isect_pt[sel0, 2] = az
@@ -485,8 +487,8 @@ def align_vectors(a1, a2, b1, b2):
     Xmiddle = align_vector(aaxis, baxis)
     Xaround = align_around_axis(baxis, Xmiddle @ a1, b1)
     X = Xaround @ Xmiddle
-    assert (angle(b1, a1) + angle(b2, a2)
-            ) >= (angle(b1, X @ a1) + angle(b2, X @ a2))
+    assert (angle(b1, a1) + angle(b2, a2)) >= (
+        angle(b1, X @ a1) + angle(b2, X @ a2))
     return X
     # not so good if angles don't match:
     # xa = Xform().from_two_vecs(a2,a1)

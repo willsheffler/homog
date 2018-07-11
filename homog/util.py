@@ -1,6 +1,6 @@
 try:
     import numba
-    from numba.types import float64, float32
+    from numba.types import float64, float32, int64, int32
     jit = numba.njit(nogil=True, fastmath=True)
 
     def guvec(sigs, layout, func):
@@ -9,7 +9,8 @@ try:
 
 except ImportError:
     import numpy
-    float64 = float32 = numpy.empty((1, 1, 1, 1, 1, 1, 1))
+    # dummy
+    float64 = float32 = int64 = int32 = numpy.empty((1, 1, 1, 1, 1, 1, 1))
     jit = lambda f: None
 
     def guvec(sigs, layout, func):
