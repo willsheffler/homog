@@ -1,4 +1,7 @@
 try:
+    import os
+    if 'NUMBA_DISABLE_JIT' in os.environ:
+        raise ImportError
     import numba
     from numba.types import float64, float32, int64, int32
     jit = numba.njit(nogil=True, fastmath=True)
