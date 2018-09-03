@@ -4,8 +4,9 @@
 
 __author__ = """Will Sheffler"""
 __email__ = 'willsheffler@gmail.com'
-__version__ = '0.1.10'
+__version__ = '0.1.14'
 
 
 from .homog import *
 from . import sym
+from . import quat

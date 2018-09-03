@@ -3,14 +3,14 @@
 	[
 		{
 			"path": ".",
-            "folder_exclude_patterns" : [".cache", ".tox", "build", "dist", "*.egg-info", "__pycache__", "_build", ".eggs"]
+            "folder_exclude_patterns" : [".cache", ".tox", "build", "dist", "*.egg-info", "__pycache__", "_build", ".eggs", "prof", ".github", ".pytest_cache", ".hypothesis"]
 		}
 	],
     "build_systems":
     [
         {
             "name": "pytest",
-            "shell_cmd": "cd $folder; echo pwd: `pwd` > log/sublime_build.log; echo python: `which python` >> log/sublime_build.log; pytest &>> log/sublime_build.log"
+            "shell_cmd": "cd $folder; echo pwd: `pwd` > log/sublime_build.log; echo python: `which python` >> log/sublime_build.log; pytest --durations=10 &>> log/sublime_build.log"
         },
         {
             "name": "make_docs",

@@ -12,7 +12,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'numpy'
+    'numpy',
+    'traitlets',
 ]
 
 setup_requirements = [
@@ -22,11 +23,12 @@ setup_requirements = [
 test_requirements = [
     'pytest',
     'numpy',
+    'traitlets',
 ]
 
 setup(
     name='homog',
-    version='0.1.10',
+    version='0.1.14',
     description="Utilities for Homogeneous Coordinates with Numpy",
     long_description=readme + '\n\n' + history,
     author="Will Sheffler",
