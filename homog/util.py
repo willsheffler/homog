@@ -7,8 +7,7 @@ try:
     jit = numba.njit(nogil=True, fastmath=True)
 
     def guvec(sigs, layout, func):
-        return numba.guvectorize(
-            sigs, layout, nopython=1, fastmath=1)(func)  # nogil not supported
+        return numba.guvectorize(sigs, layout, nopython=True, fastmath=True)(func)  # nogil not supported
 
 except ImportError:
     import numpy
