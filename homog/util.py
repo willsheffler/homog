@@ -8,7 +8,7 @@ try:
 
     def guvec(sigs, layout, func):
         return numba.guvectorize(
-            sigs, layout, nopython=1, fastmath=1)(func)  # nogil not supported
+            sigs, layout, nopython=True, fastmath=True)(func)  # nogil not supported
 
 except ImportError:
     import numpy
