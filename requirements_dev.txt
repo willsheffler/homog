@@ -3,7 +3,7 @@ bumpversion
 wheel
 watchdog
 flake8
-tox
+tox==3.15.1
 coverage
 Sphinx==1.7.2
 cryptography
@@ -12,4 +12,4 @@ pytest
 pytest-runner
 numpy
 traitlets
-tox
+tox==3.15.1
