@@ -7,7 +7,7 @@ tox
 coverage
 Sphinx==1.7.2
 cryptography
-PyYAML
+PyYAML==5.4
 pytest
 pytest-runner
 numpy
