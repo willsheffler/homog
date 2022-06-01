@@ -1,2 +1,2 @@
 numpy
-traitlets
+traitlets==5.2.2.post1
