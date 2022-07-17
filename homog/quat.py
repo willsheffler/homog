@@ -132,7 +132,7 @@ def numba_rot_to_quat(xform):
 gu_rot_to_quat = guvec([
     (float64[:, :], float64[:]),
     (float32[:, :], float32[:]),
-], '(n,n)->(n)', kernel_rot_to_quat)
+], '(n,n)->(n)', kernel_rot_to_quat.py_func)
 
 
 def quat_to_rot(quat, dtype='f8', shape=(3, 3)):
@@ -186,7 +186,7 @@ def kernel_quat_multiply(q, r, out):
 
 
 gu_quat_multiply = guvec([(float64[:], float64[:], float64[:])],
-                         '(n),(n)->(n)', kernel_quat_multiply)
+                         '(n),(n)->(n)', kernel_quat_multiply.py_func)
 
 
 @jit
