@@ -1,2 +1,2 @@
 numpy
-traitlets
+traitlets==5.9.0
