@@ -10,6 +10,6 @@ cryptography
 PyYAML
 pytest
 pytest-runner
-numpy
+numpy==1.24.2
 traitlets
 tox
