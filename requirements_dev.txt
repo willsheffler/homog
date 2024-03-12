@@ -11,5 +11,5 @@ PyYAML
 pytest
 pytest-runner
 numpy
-traitlets
+traitlets==5.14.2
 tox
